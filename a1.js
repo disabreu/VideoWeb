@@ -4,57 +4,54 @@ a1.videos = [];
 a1.watchedVideos = [];
 a1.fixedListOfVideos = [];
 
-//1. An entry point funtion for implementation of our engine
-a1.start = function(hookElementSelection, dataurlForJsonFile) {
-	  //make an ajax call and wait for success to parse the json data.
-	  $.ajax({url:dataurlForJsonFile}).success(function(clips) {
-   
-        createDisp(hookElementSelection);
+    //1. An entry point funtion for implementation of our engine
+	a1.start = function(hookElementSelection, dataurlForJsonFile) {
+		  //make an ajax call and wait for success to parse the json data.
+		  $.ajax({url:dataurlForJsonFile}).success(function(clips) {
+	   
+	        createDisp(hookElementSelection);
 
-		$.each(clips, function(i,val) {
-			var video = new a1.Video(val.id, val.name, val.description,val['content-url'],val['thumb-url']);
-			a1.videos.push(video);
-	    });
+			$.each(clips, function(i,val) {
+				var video = new a1.Video(val.id, val.name, val.description,val['content-url'],val['thumb-url']);
+				a1.videos.push(video);
+		    });
 
-	    if(!localStorage.s2){
-	    	a1.fixedListOfVideos = a1.videos;
-	    }else{
-	    	a1.fixedListOfVideos = JSON.parse(localStorage.getItem("s2"));
-	    	localStorage.removeItem("s2");
-	    }
+		    if(!localStorage.s2){
+		    	a1.fixedListOfVideos = a1.videos;
+		    }else{
+		    	a1.fixedListOfVideos = JSON.parse(localStorage.getItem("s2"));
+		    	localStorage.removeItem("s2");
+		    }
 
-	    var middleArray = [];
-        var vid = [];
+		    var middleArray = [];
+	        var vid = [];
 
-     	if(localStorage.s1){
-	       a1.watchedVideos = JSON.parse(localStorage.getItem("s1"));
-	       localStorage.removeItem("s1");
-   
-	    $.each(a1.watchedVideos, function(index,value) {
-            var vidW = value.id;
-            vid.push(vidW);
-        });
+	     	if(localStorage.s1){
+		       a1.watchedVideos = JSON.parse(localStorage.getItem("s1"));
+		       localStorage.removeItem("s1");
+	   
+	            copyIds(vid);
 
-	    $.each(a1.fixedListOfVideos, function(i,val) {
-	     if(vid.indexOf(val.id) == -1){
-	         middleArray.push(val);
-	     }
+			    $.each(a1.fixedListOfVideos, function(i,val) {
+			     if(vid.indexOf(val.id) == -1){
+			         middleArray.push(val);
+			    }
 
-	    });
+		    });
 
-     	$.each(a1.watchedVideos, function(i,val) {
-	        middleArray.push(val);
-	    });
+	     	$.each(a1.watchedVideos, function(i,val) {
+		        middleArray.push(val);
+		    });
 
-	    a1.fixedListOfVideos = middleArray;
+		    a1.fixedListOfVideos = middleArray;
 
-	    }
+		    }
 
-	    localStorage.setItem("s2",JSON.stringify(a1.fixedListOfVideos));
-        thumbList(a1.fixedListOfVideos, hookElementSelection);
+		    localStorage.setItem("s2",JSON.stringify(a1.fixedListOfVideos));
+	        thumbList(a1.fixedListOfVideos, hookElementSelection);
 
-      });  
-};
+	      });  
+	};
 
 	a1.Video = function(id, name, description, content, thumb) {
 
@@ -97,6 +94,14 @@ a1.start = function(hookElementSelection, dataurlForJsonFile) {
 
 	};
 
+	var copyIds = function(vid){
+
+	    $.each(a1.watchedVideos, function(index,value) {
+            var vidW = value.id;
+            vid.push(vidW);
+        });
+	}
+
     var createDisp = function(base){
         base.prepend(divvid);
     }
@@ -113,11 +118,8 @@ a1.start = function(hookElementSelection, dataurlForJsonFile) {
                     var videoWatched = new a1.Video(val.id, val.name, val.description,val.content,val.thumb);
 
                     var vid = [];
+                    copyIds(vid);
 
-			        $.each(a1.watchedVideos, function(index,value) {
-			            var vidW = value.id;
-			            vid.push(vidW);
-			        });
 
                     if(vid.indexOf(val.id) == -1){
 	                    a1.watchedVideos.push(videoWatched);             	
@@ -130,11 +132,10 @@ a1.start = function(hookElementSelection, dataurlForJsonFile) {
 				    });
 
 				    document.getElementById('stop').addEventListener("click", function(){
-				    	//$('#vidID').stop();
 
 				    document.getElementById('vidID').pause();
 				    document.getElementById('vidID').currentTime = 0;
-				    //$('#vidID')[0].currentTime =0;
+
 				    var progressBar = $('#progress-bar');
 				    progressBar.attr("value",0);
 
@@ -189,8 +190,8 @@ a1.start = function(hookElementSelection, dataurlForJsonFile) {
 
             		fullscreen=false;
             		$('.display').removeClass("dispFull");
-            		$('#vidID').removeClass("vidFull"); //añade video
-         			$('.descripcion').removeClass("descFull"); //descripcion full 
+            		$('#vidID').removeClass("vidFull"); 
+         			$('.descripcion').removeClass("descFull"); 
             		$('.thumbnail').show();
             		$('.title').show();
 
@@ -200,8 +201,8 @@ a1.start = function(hookElementSelection, dataurlForJsonFile) {
 					fullscreen=true;
 
             		$('.display').addClass("dispFull");
-            		$('#vidID').addClass("vidFull"); //añade video
-         			$('.descripcion').addClass("descFull"); //descripcion full
+            		$('#vidID').addClass("vidFull"); 
+         			$('.descripcion').addClass("descFull"); 
             		$('.thumbnail').hide();
             		$('.title').hide();
             		
